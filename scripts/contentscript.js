@@ -1,30 +1,44 @@
 
+var TRANSACTION_PARAMS = ['to', 'amount', 'memo']
+
+
 function ready(fn) {
-  if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading"){
+
+  if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
     fn();
   } else {
     document.addEventListener('DOMContentLoaded', fn);
   }
+
 }
+
 
 ready(function() {
 
   document.body.addEventListener('click', function(e) {
+
     if (e.target.getAttribute && e.target.getAttribute('data-meta-pay')) {
-      const url = chrome.extension.getURL('images/icon-128.png')
 
-      // var port = chrome.runtime.connect({name: "knockknock"});
-      // port.postMessage({joke: "Knock knock"});
-      // port.onMessage.addListener(function(msg) {
-      //   console.log('message', msg)
-      // });
+      var attrs = e.target.attributes
+      var params = {}
 
-      chrome.runtime.sendMessage({type: "notification", options: {
-        type: "popup",
-        iconUrl: chrome.extension.getURL("images/icon-128.png"),
-      }}, function (response) {
+      for(var i = attrs.length - 1; i >= 0; i--) {
+
+        var name = attrs[i].name
+        if (TRANSACTION_PARAMS.indexOf(name) >= 0) {
+          params[name] = attrs[i].value
+        }
+
+      }
+
+      chrome.runtime.sendMessage({type: "notification", params: params}, function (response) {
+
         // console.log('responed with', response)
+
       });
+
     }
+
   })
+
 })
