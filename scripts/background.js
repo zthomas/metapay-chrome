@@ -1,5 +1,5 @@
 const height = 640
-const width = 500
+const width = 550
 
 // ref: https://github.com/MetaMask/metamask-extension/blob/master/app/scripts/background.js
 // ref: https://stackoverflow.com/questions/26156978/sending-message-from-content-script-to-background-script-breaks-chrome-extension
@@ -27,10 +27,10 @@ function serialize(obj) {
 }
 
 // NOTE: the callback context has some issues... it's in the context of the content script?
-function notify(params, callback) {
+function notify(urlSearchParams, callback) {
 
   chrome.windows.create({
-    url: 'transaction.html'+serialize(params),
+    url: 'transaction.html'+urlSearchParams,
     type: 'popup',
     width,
     height
@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   if (request.type == 'notification') {
 
-    notify(request.params, function() {
+    notify(request.search, function() {
       sendResponse({status: 'done'})
     })
     

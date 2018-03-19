@@ -1,5 +1,5 @@
 
-var TRANSACTION_PARAMS = ['to', 'amount', 'memo']
+var TRANSACTION_PARAMS = ['to', 'amount', 'memo', 'memoType']
 
 
 function ready(fn) {
@@ -13,25 +13,41 @@ function ready(fn) {
 }
 
 
+function findParent(target, test) {
+  if (!target) return false
+  if (test(target)) {
+    return target
+  } else {
+    return findParent(target.parentNode, test)
+  }
+}
+
 ready(function() {
 
-  document.body.addEventListener('click', function(e) {
+  /**
+   * <a data-meta-pay href="https://stellar.meta.re/transaction?to=GACCT&amount=10&memo=test&memoType=MEMO_TEXT" target="_blank" >Purchase now</a>
+   */
+  function handleClick(e) {
 
-    if (e.target.getAttribute && e.target.getAttribute('data-meta-pay')) {
+    if (!document.querySelector('[data-meta-pay]')) {
+      document.body.removeEventListener('click', handleClick)
+      return
+    }
 
-      var attrs = e.target.attributes
-      var params = {}
+    const linkTag = findParent(e.target, function(target) {
+      return target.tagName == 'A'
+    })
 
-      for(var i = attrs.length - 1; i >= 0; i--) {
+    if (linkTag && linkTag.hasAttribute('data-meta-pay') && linkTag.hasAttribute('href')) {
 
-        var name = attrs[i].name
-        if (TRANSACTION_PARAMS.indexOf(name) >= 0) {
-          params[name] = attrs[i].value
-        }
-
+      var url = new URL(linkTag.getAttribute('href'))
+      if (!/meta\.re$/.test(url.origin)) {
+        return
       }
 
-      chrome.runtime.sendMessage({type: "notification", params: params}, function (response) {
+      e.preventDefault()
+
+      chrome.runtime.sendMessage({type: "notification", search: url.search}, function (response) {
 
         // console.log('responed with', response)
 
@@ -39,6 +55,9 @@ ready(function() {
 
     }
 
-  })
+  }
+
+
+  document.body.addEventListener('click', handleClick)
 
 })

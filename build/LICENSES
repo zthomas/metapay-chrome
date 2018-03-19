@@ -56,6 +56,13 @@
  * @license MIT
  */
 
+/*!
+ * Determine if an object is a Buffer
+ *
+ * @author   Feross Aboukhadijeh <https://feross.org>
+ * @license  MIT
+ */
+
 /**
  * @license
  * lodash 3.10.1 (Custom Build) <https://lodash.com/>
